@@ -1,0 +1,35 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+repositories {
+    mavenCentral()
+}
+
+application {
+    mainClass = 'com.craftinginterpreters.lox.Lox'
+}
+
+run {
+    standardInput = System.in 
+  }
+
+  task genAst(type: JavaExec) {
+      mainClass = 'com.craftinginterpreters.tools.GenerateAst'
+      classpath = sourceSets.main.runtimeClasspath
+      workingDir = file('src/main/java/com/craftinginterpreters/lox')
+      args '.'
+    }
+
+    task printAst(type: JavaExec) {
+        mainClass = 'com.craftinginterpreters.lox.AstPrinter'
+        classpath = sourceSets.main.runtimeClasspath
+        workingDir = file('src/main/java/com/craftinginterpreters/lox')
+      }
+// Optional: Set Java version if needed
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11) // or whatever version you're using
+    }
+}
