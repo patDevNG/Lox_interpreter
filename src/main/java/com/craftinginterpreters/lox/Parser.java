@@ -16,17 +16,56 @@ class Parser {
     this.tokens = tokens;
   }
 
+  private Expr assignment() {
+    Expr expr = equality();
+
+    if (match(EQUAL)) {
+      Token equals = previous();
+      Expr value = assignment();
+
+      if (expr instanceof Expr.Var) {
+        Token name = ((Expr.Var) expr).name;
+        return new Expr.Assign(name, value);
+      }
+      error(equals, "Invalid assignment target");
+    }
+
+    return expr;
+  }
+
   List<Stmt> parse() {
     List<Stmt> statements = new ArrayList<>();
     while (!isAtEnd()) {
-      statements.add(statement());
+      statements.add(declaration());
     }
 
     return statements;
   }
 
+  private Stmt declaration() {
+    try {
+      if (match(VAR))
+        return varDeclaration();
+      return statement();
+    } catch (ParseError error) {
+      synchronize();
+      return null;
+    }
+  }
+
+  private Stmt varDeclaration() {
+    Token name = consume(IDENTIFIER, "Expect variable name.");
+    Expr initializer = null;
+    if (match(EQUAL)) {
+      initializer = expression();
+    }
+
+    consume(SEMICOLON, "Expect ',' after variable declaration.");
+    return new Stmt.Variable(name, initializer);
+  }
+
   private Expr expression() {
-    return equality();
+    return assignment();
   }
 
   private Stmt statement() {
@@ -109,7 +148,9 @@ class Parser {
     if (match(NUMBER, STRING)) {
       return new Expr.Literal((previous().literal));
     }
-
+    if (match(IDENTIFIER)) {
+      return new Expr.Var(previous());
+    }
     if (match(LEFT_PAREN)) {
       Expr expr = expression();
       consume(RIGHT_PAREN, "Expect '}' after expression");

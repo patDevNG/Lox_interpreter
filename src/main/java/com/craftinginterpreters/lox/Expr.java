@@ -5,8 +5,10 @@ import java.util.List;
 abstract class Expr {
    interface Visitor<R> {
   R visitBinaryExpr(Binary expr);
+  R visitAssignExpr(Assign expr);
   R visitGroupingExpr(Grouping expr);
   R visitLiteralExpr(Literal expr);
+  R visitVarExpr(Var expr);
   R visitUnaryExpr(Unary expr);
  }
    static class  Binary extends Expr {
@@ -24,6 +26,20 @@ abstract class Expr {
    final Expr left;
    final Token operator;
    final Expr right;
+  }
+   static class  Assign extends Expr {
+   Assign(Token name, Expr value) {
+   this.name = name;
+   this.value = value;
+  }
+
+  @Override
+    <R> R accept(Visitor<R> visitor) {
+  return visitor.visitAssignExpr(this);
+}
+
+   final Token name;
+   final Expr value;
   }
    static class  Grouping extends Expr {
    Grouping(Expr expression) {
@@ -48,6 +64,18 @@ abstract class Expr {
 }
 
    final Object value;
+  }
+   static class  Var extends Expr {
+   Var(Token name) {
+   this.name = name;
+  }
+
+  @Override
+    <R> R accept(Visitor<R> visitor) {
+  return visitor.visitVarExpr(this);
+}
+
+   final Token name;
   }
    static class  Unary extends Expr {
    Unary(Token operator, Expr right) {

@@ -16,12 +16,15 @@ public class GenerateAst {
 
     defineAst(outputDir, "Expr", Arrays.asList(
         "Binary : Expr left, Token operator, Expr right",
+        "Assign : Token name, Expr value",
         "Grouping : Expr expression",
         "Literal : Object value",
+        "Var : Token name",
         "Unary : Token operator, Expr right"));
 
     defineAst(outputDir, "Stmt", Arrays.asList(
         "Expression : Expr expression",
+        "Variable : Token name, Expr initializer",
         "Print : Expr expression"));
   }
 
