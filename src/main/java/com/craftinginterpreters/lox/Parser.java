@@ -72,13 +72,40 @@ class Parser {
     if (match(PRINT))
       return printStatement();
 
+    if (match(LEFT_BRACE))
+      return new Stmt.Block(block());
+    if (match(IF))
+      return ifStatement();
     return expressionStatment();
+  }
+
+  private List<Stmt> block() {
+    List<Stmt> statements = new ArrayList<>();
+    while (!check(RIGHT_BRACE) && !isAtEnd()) {
+      statements.add(declaration());
+    }
+    consume(RIGHT_BRACE, "Expected '}' after block.");
+    return statements;
   }
 
   private Stmt printStatement() {
     Expr expr = expression();
     consume(SEMICOLON, "Expect ';' after expression.");
     return new Stmt.Print(expr);
+  }
+
+  private Stmt ifStatement() {
+    consume(LEFT_PAREN, "Expect '(' after 'if'.");
+    Expr condition = expression();
+    consume(RIGHT_PAREN, "Expect ')' afer 'if' condition");
+    Stmt thenBranch = statement();
+    Stmt elseBranch = null;
+
+    if (match(ELSE)) {
+      elseBranch = statement();
+    }
+
+    return new Stmt.If(condition, thenBranch, elseBranch);
   }
 
   private Stmt expressionStatment() {
