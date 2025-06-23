@@ -19,6 +19,7 @@ public class GenerateAst {
         "Assign : Token name, Expr value",
         "Grouping : Expr expression",
         "Literal : Object value",
+        "Logical : Expr left, Token operator, Expr right",
         "Var : Token name",
         "Unary : Token operator, Expr right"));
 
@@ -27,6 +28,7 @@ public class GenerateAst {
         "If : Expr condition, Stmt thenBranch," +
             " Stmt elseBranch",
         "Variable : Token name, Expr initializer",
+        "While : Expr condition, Stmt body ",
         "Block : List<Stmt> statements",
         "Print : Expr expression"));
   }

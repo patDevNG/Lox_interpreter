@@ -68,10 +68,20 @@ class Parser {
     return assignment();
   }
 
+  private Stmt whileStatement() {
+    consume(LEFT_PAREN, "Expect '(' after 'while' .");
+    Expr condition = expression();
+    consume(RIGHT_PAREN, "Expect ')' after condition.");
+    Stmt body = statement();
+
+    return new Stmt.While(condition, body);
+  }
+
   private Stmt statement() {
     if (match(PRINT))
       return printStatement();
-
+    if (match(WHILE))
+      return whileStatement();
     if (match(LEFT_BRACE))
       return new Stmt.Block(block());
     if (match(IF))
@@ -106,6 +116,28 @@ class Parser {
     }
 
     return new Stmt.If(condition, thenBranch, elseBranch);
+  }
+
+  private Expr or() {
+    Expr expr = and();
+
+    while (match(OR)) {
+      Token operator = previous();
+      Expr right = and();
+      expr = new Expr.Logical(expr, operator, right);
+    }
+    return expr;
+  }
+
+  private Expr and() {
+    Expr expr = equality();
+
+    while (match(AND)) {
+      Token operator = previous();
+      Expr right = equality();
+      expr = new Expr.Logical(expr, operator, right);
+    }
+    return expr;
   }
 
   private Stmt expressionStatment() {
